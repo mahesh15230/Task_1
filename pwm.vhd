@@ -23,7 +23,7 @@ Port (
 end PWM;
 --
 architecture RTL of PWM is
-
+	signal pwm_value        : std_logic_vector(BIT_SIZE - 1 downto 0);
 	constant max_freq_count	: integer := INPUT_CLK / FREQ;
 	signal pwm_count	    : integer range 0 to max_freq_count := 0;
 
@@ -32,21 +32,21 @@ begin
 	max_pwm_count <= to_integer(unsigned(dutycycle));
 
 	proc_pwm : process(clk, reset)
-
 	begin
+		pwm_out <= pwm_value;
         if reset = '0' then
             pwm_count <= '0';
-            pwm_out <= '0';
+            pwm_value <= '0';
         elsif rising_edge(clk) then
 			if pwm_count < max_pwm_count then
-				pwm_out <= '1';
+				pwm_value <= '1';
 				pwm_count <= pwm_count + 1;
 			else
 				if pwm_count = max_freq_count then
 					pwm_count <= '0';
-                    pwm_out <= '0';
+                    pwm_value <= '0';
 				else
-					pwm_out <= '0';
+					pwm_value <= '0';
 					pwm_count <= pwm_count + 1;
 				end if;
 			end if;
