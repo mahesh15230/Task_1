@@ -1,9 +1,9 @@
 --------------------------------------------------------------------------------------
 -- Filename : pwm.vhd
 --
---Author : mahesh15230 <mahesh15230@mechyd.ac.in>
+--Author : Mahesh Yayi <Mahesh Yayi@mechyd.ac.in>
 --
---Copyright (c) 2018 mahesh15230
+--Copyright (c) 2018 Mahesh Yayi
 --------------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
