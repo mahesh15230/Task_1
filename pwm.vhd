@@ -6,50 +6,60 @@
 --Copyright (c) 2018 mahesh15230
 --------------------------------------------------------------------------------------
 library IEEE;
-use IEEE.std_logic_1164.all;
+use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.numeric_std.all;
-use IEEE.std_logic_unsigned.all;
---
+
 entity PWM is
 Generic (
-	BIT_SIZE	: integer := 8;
-	INPUT_CLK	: integer := 50000000;
-	FREQ		: integer := 500);
+ BIT_DEPTH : integer := 8;
+ INPUT_CLK : integer := 50000000;
+ FREQ      : integer := 50);
 Port (
-	pwm_out 	: out std_logic;
-	dutycycle	: in std_logic_vector(BIT_SIZE - 1 downto 0);
-	clk			: in std_logic;
-	reset		: in std_logic);
+ pwm_out    : out std_logic;
+ dutycycle  : in std_logic_vector(BIT_DEPTH - 1 downto 0);
+ clk        : in std_logic;
+ enable     : in std_logic);
 end PWM;
---
-architecture RTL of PWM is
-	signal pwm_value        : std_logic_vector(BIT_SIZE - 1 downto 0);
-	constant max_freq_count	: integer := INPUT_CLK / FREQ;
-	signal pwm_count	    : integer range 0 to max_freq_count := 0;
 
+architecture behavior of PWM is
+
+	constant max_freq_count : integer := INPUT_CLK / FREQ;
+	constant pwm_step       : integer := max_freq_count / (2**BIT_DEPTH);
+
+	signal pwm_value      : std_logic := '0';
+	signal freq_count     : integer range 0 to max_freq_count := 0;
+	signal pwm_count      : integer range 0 to 2**BIT_DEPTH := 0;
+	signal max_pwm_count  : integer range 0 to 2**BIT_DEPTH := 0;
+	signal pwm_step_count : integer range 0 to max_freq_count := 0;
 begin
 
-	max_pwm_count <= to_integer(unsigned(dutycycle));
+ max_pwm_count <= to_integer(unsigned(dutycycle));
+ pwm_out <= pwm_value;
 
-	proc_pwm : process(clk, reset)
-	begin
-		pwm_out <= pwm_value;
-        if reset = '0' then
-            pwm_count <= '0';
-            pwm_value <= '0';
-        elsif rising_edge(clk) then
-			if pwm_count < max_pwm_count then
-				pwm_value <= '1';
-				pwm_count <= pwm_count + 1;
-			else
-				if pwm_count = max_freq_count then
-					pwm_count <= '0';
-                    pwm_value <= '0';
-				else
-					pwm_value <= '0';
-					pwm_count <= pwm_count + 1;
-				end if;
-			end if;
-		end if;
-	end process proc_pwm;
-end RTL;
+ freq_counter : process(clk)
+ begin
+	 if rising_edge(clk) then
+		 if enable = '0' then
+			 if freq_count < max_freq_count then
+				 freq_count <= freq_count + 1;
+				 if pwm_count < max_pwm_count then
+					 pwm_value <= '1';
+					 if pwm_step_count < pwm_step then
+						 pwm_step_count <= pwm_step_count + 1;
+					 else
+						 pwm_step_count <= 0;
+						 pwm_count <= pwm_count + 1;
+					 end if;
+				 else
+				 	pwm_value <= '0';
+				 end if;
+			 else
+				 freq_count <= 0;
+				 pwm_count <= 0;
+			 end if;
+		 else
+		 	pwm_value <= '0';
+		 end if;
+	 end if;
+end process freq_counter;
+end behavior;
