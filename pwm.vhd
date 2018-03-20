@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------------
 -- Filename : pwm.vhd
 --
---Author : Mahesh Yayi <Mahesh Yayi@mechyd.ac.in>
+--Author : Mahesh Yayi <mahesh15230@mechyd.ac.in>
 --
 --Copyright (c) 2018 Mahesh Yayi
 --------------------------------------------------------------------------------------
